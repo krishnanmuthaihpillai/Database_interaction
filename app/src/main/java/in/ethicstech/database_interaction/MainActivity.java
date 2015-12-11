@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     String url="http://momsdhaba.com/mobileapp/chefviewfood/";
@@ -12,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-insert_data(getApplicationContext(),url,db);
+        insert_data(getApplicationContext(),url,db);
 
     }
 
@@ -22,11 +23,24 @@ insert_data(getApplicationContext(),url,db);
             @Override
             public void processFinish(String output) {
                 //Result
+                toast_it(output);
                 Log.d("output",""+output);
             }
 
         }, context,db, url);
         asyncTask.execute();
+
+    }
+
+    private void toast_it(final String output) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(),""+output,Toast.LENGTH_LONG).show();
+
+
+            }
+        });
 
     }
 }

@@ -43,32 +43,34 @@ public class Load_Food extends AsyncTask<String, String, String> {
     protected String doInBackground(String... strings) {
         try {
             Log.d("doInBackground", "doInBackground");
-//            db = new Chef_DB_Helper(context);
-//            ServiceHandler serviceHandler = new ServiceHandler();
-
+            db = new Chef_DB_Helper(context);
             JsonParser jParser = new JsonParser();
             List<NameValuePair> sFood = new ArrayList<NameValuePair>();
             sFood.add(new BasicNameValuePair("id", "22"));
             JSONObject json = jParser.getJSONFromUrlPOST(sFood, url);
 
-//            String jsonData = serviceHandler.makeServiceCall(url, ServiceHandler.POST);
-//            if (jsonData.length() > 0) {
-//                JSONObject jsonObj = new JSONObject(jsonData);
-            JSONArray jArray = json.getJSONArray("chef_food_today");
-            for (int i = 0; i < jArray.length(); i++) {
-                JSONObject obj = jArray.getJSONObject(i);
-                String f_status = obj.getString("status");
-                String f_food_quantity = obj.getString("food_quantity");
-                String f_description = obj.getString("description");
-                String f_food_image = obj.getString("food_image");
-                String f_available_date = obj.getString("available_date");
-                String f_food_type = obj.getString("food_type");
-                String f_chef_id = obj.getString("chef_id");
-                String f_food_name = obj.getString("food_name");
-                String f_food_id = obj.getString("food_id");
-                String f_food_price = obj.getString("food_price");
-                String f_chef_name = obj.getString("chef_name");
-                String image_filepath = download_image(f_food_image, f_food_name);
+            String jsonData = json.toString();
+            if (jsonData.length() > 0) {
+                JSONArray jArray = json.getJSONArray("chef_food_today");
+                for (int i = 0; i < jArray.length(); i++) {
+                    JSONObject obj = jArray.getJSONObject(i);
+                    String f_status = obj.getString("status");
+                    if (f_status.equals("success")) {
+                        String f_food_image = obj.getString("food_image");
+                        String f_food_name = obj.getString("food_name");
+                        String f_food_image_path = save_and_get_imgpath(f_food_image, f_food_name);
+                        String f_food_quantity = obj.getString("food_quantity");
+                        String f_description = obj.getString("description");
+                        String f_available_date = obj.getString("available_date");
+                        String f_food_type = obj.getString("food_type");
+                        String f_chef_id = obj.getString("chef_id");
+                        String f_food_id = obj.getString("food_id");
+                        String f_food_price = obj.getString("food_price");
+                        String f_chef_name = obj.getString("chef_name");
+                        db.insert_data(f_chef_id, f_food_id, f_chef_name, f_food_type, f_food_name, f_description, f_food_image_path, f_food_price, f_food_quantity, f_available_date);
+
+                    }
+                }
 
 
 //                    Log.d("f_status",""+f_status);
@@ -83,12 +85,11 @@ public class Load_Food extends AsyncTask<String, String, String> {
 //                    Log.d("f_food_price",""+f_food_price);
 //                    Log.d("f_status",""+f_status);
 //                    Log.d("f_chef_name",""+f_chef_name);
-                Log.d("get_filepath", "" + image_filepath);
+//                Log.d("get_filepath", "" + f_food_image_path);
 
 //                Log.d("imgurl", "" + imgurl);
 
 
-//                    db.insert_data(f_chef_id,f_food_id,f_chef_name,f_food_type,f_food_name,f_description,f,foodDesc,foodQuantity,foodPrice,foodType);
 //                }
 
 
@@ -102,14 +103,12 @@ public class Load_Food extends AsyncTask<String, String, String> {
 
 
     @Override
-    protected void onPostExecute(String s) {
-
+    protected void onPostExecute(String output) {
+        resultUpdater.processFinish(output);
     }
 
-    private String download_image(String image_url, String food_name) {
-
-        String filePath = Environment.getExternalStorageDirectory() + "/momsdhaba/chef";
-        File file = new File(filePath);
+    private String save_and_get_imgpath(String image_url, String food_name) {
+        File file = new File(Environment.getExternalStorageDirectory() + "/momsdhaba/chef");
         if (!file.exists()) {
             file.mkdirs();
         }
@@ -118,12 +117,12 @@ public class Load_Food extends AsyncTask<String, String, String> {
             URLConnection urlcon = url.openConnection();
             urlcon.connect();
             InputStream input = new BufferedInputStream(url.openStream());
-             food_name=food_name.replaceAll("\\s+","") +"."+ get_file_extension(image_url);
+            food_name = food_name.replaceAll("\\s+", "") + "." + get_file_extension(image_url);
             file = new File(file + "/" + food_name);
-            if (file.exists()){
+            if (file.exists()) {
                 file.delete();
             }
-            food_name=file.toString();
+            food_name = file.toString();
             OutputStream output = new FileOutputStream(file);
             byte data[] = new byte[1024];
             long total = 0;
