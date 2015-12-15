@@ -28,6 +28,7 @@ public class Load_Food extends AsyncTask<String, String, String> {
     Context context = null;
     String url = null;
     Chef_DB_Helper db;
+    String f_status="";
 
     public Load_Food(ResultUpdater resultUpdater, Context context, Chef_DB_Helper db, String url) {
         Log.d("Load_Food", "Load_Food");
@@ -35,15 +36,13 @@ public class Load_Food extends AsyncTask<String, String, String> {
         this.context = context;
         this.url = url;
         this.db = db;
-
-
     }
 
     @Override
     protected String doInBackground(String... strings) {
         try {
-            Log.d("doInBackground", "doInBackground");
             db = new Chef_DB_Helper(context);
+            db.deleteAll();
             JsonParser jParser = new JsonParser();
             List<NameValuePair> sFood = new ArrayList<NameValuePair>();
             sFood.add(new BasicNameValuePair("id", "22"));
@@ -54,7 +53,7 @@ public class Load_Food extends AsyncTask<String, String, String> {
                 JSONArray jArray = json.getJSONArray("chef_food_today");
                 for (int i = 0; i < jArray.length(); i++) {
                     JSONObject obj = jArray.getJSONObject(i);
-                    String f_status = obj.getString("status");
+                      f_status = obj.getString("status");
                     if (f_status.equals("success")) {
                         String f_food_image = obj.getString("food_image");
                         String f_food_name = obj.getString("food_name");
@@ -68,37 +67,14 @@ public class Load_Food extends AsyncTask<String, String, String> {
                         String f_food_price = obj.getString("food_price");
                         String f_chef_name = obj.getString("chef_name");
                         db.insert_data(f_chef_id, f_food_id, f_chef_name, f_food_type, f_food_name, f_description, f_food_image_path, f_food_price, f_food_quantity, f_available_date);
-
                     }
                 }
-
-
-//                    Log.d("f_status",""+f_status);
-//                    Log.d("f_food_quantity",""+f_food_quantity);
-//                    Log.d("f_description",""+f_description);
-//                    Log.d("f_food_image",""+f_food_image);
-//                    Log.d("f_available_date",""+f_available_date);
-//                    Log.d("f_food_type",""+f_food_type);
-//                    Log.d("f_chef_id",""+f_chef_id);
-//                    Log.d("f_food_name",""+f_food_name);
-//                    Log.d("f_food_id",""+f_food_id);
-//                    Log.d("f_food_price",""+f_food_price);
-//                    Log.d("f_status",""+f_status);
-//                    Log.d("f_chef_name",""+f_chef_name);
-//                Log.d("get_filepath", "" + f_food_image_path);
-
-//                Log.d("imgurl", "" + imgurl);
-
-
-//                }
-
-
             }
-
         } catch (Exception e) {
             Log.e("Exception", "" + e);
+            f_status="";
         }
-        return "EXECUTED";
+        return f_status;
     }
 
 

@@ -2,8 +2,11 @@ package in.ethicstech.database_interaction;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
 
 /**
  * Created by krishnan on 10/12/15.
@@ -62,6 +65,60 @@ public class Chef_DB_Helper extends SQLiteOpenHelper {
         values.put(KEY_FOOD_QUANTITY, foodQuantity);
         values.put(KEY_FOOD_AVAILABLE_DATE, foodAvailableDate);
         db.insertWithOnConflict(TABLE_CHEF_FOOD_DETAILS, KEY_CHEF_ID, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
+    }
+
+
+    public ArrayList<ArrayList<String>> get_chef_food_list(String chef_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String locQuery = "SELECT * FROM " + TABLE_CHEF_FOOD_DETAILS + " WHERE " + KEY_CHEF_ID + " ='" + chef_id + "'";
+        ArrayList<ArrayList<String>> total_result = new ArrayList<ArrayList<String>>();
+        ArrayList<String> chefId = new ArrayList<String>();
+        ArrayList<String> foodId = new ArrayList<String>();
+        ArrayList<String> chefName = new ArrayList<String>();
+        ArrayList<String> foodType = new ArrayList<String>();
+        ArrayList<String> foodName = new ArrayList<String>();
+        ArrayList<String> foodDescription = new ArrayList<String>();
+        ArrayList<String> foodImagePath = new ArrayList<String>();
+        ArrayList<String> foodPrice = new ArrayList<String>();
+        ArrayList<String> foodQuantity = new ArrayList<String>();
+        ArrayList<String> foodAvailableDate = new ArrayList<String>();
+        total_result.clear();
+        Cursor cursor = db.rawQuery(locQuery, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            do {
+                chefId.add(cursor.getString(cursor.getColumnIndex(KEY_CHEF_ID)));
+                foodId.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_ID)));
+                chefName.add(cursor.getString(cursor.getColumnIndex(KEY_CHEF_NAME)));
+                foodType.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_TYPE)));
+                foodName.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_NAME)));
+                foodDescription.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_DESCRIPTION)));
+                foodImagePath.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_IMAGE_PATH)));
+                foodPrice.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_PRICE)));
+                foodQuantity.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_QUANTITY)));
+                foodAvailableDate.add(cursor.getString(cursor.getColumnIndex(KEY_FOOD_AVAILABLE_DATE)));
+            } while (cursor.moveToNext());
+        }
+        total_result.add(chefId);
+        total_result.add(foodId);
+        total_result.add(chefName);
+        total_result.add(foodType);
+        total_result.add(foodName);
+        total_result.add(foodDescription);
+        total_result.add(foodImagePath);
+        total_result.add(foodPrice);
+        total_result.add(foodQuantity);
+        total_result.add(foodAvailableDate);
+        cursor.close();
+        db.close();
+        return total_result;
+
+    }
+
+    public void deleteAll() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from " + TABLE_CHEF_FOOD_DETAILS);
         db.close();
     }
 }
